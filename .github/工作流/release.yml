@@ -62,6 +62,9 @@ jobs:
           asset_path: x-ui-linux-amd64.tar.gz
           asset_name: x-ui-linux-amd64.tar.gz
           asset_content_type: application/gzip
+          
+          
+          
   linuxarm64build:
     name: build x-ui arm64 version
     needs: release
@@ -105,6 +108,61 @@ jobs:
           asset_path: x-ui-linux-arm64.tar.gz
           asset_name: x-ui-linux-arm64.tar.gz
           asset_content_type: application/gzip
+          
+          
+          
+          
+    
+          
+  linuxi386build:
+    name: build x-ui i386 version
+    needs: release
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.16
+      - name: build linux i386 version
+        run: |
+          sudo apt-get update
+          sudo apt install gcc-aarch64-linux-gnu
+          CGO_ENABLED=1 GOOS=linux GOARCH=i386 CC=gcc-i686-linux-gnu go build -o xui-release -v main.go
+          mkdir x-ui
+          cp xui-release x-ui/xui-release
+          cp x-ui.service x-ui/x-ui.service
+          cp x-ui.sh x-ui/x-ui.sh
+          cd x-ui
+          mv xui-release x-ui
+          mkdir bin
+          cd bin
+          wget https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-32.zip
+          unzip Xray-linux-32.zip
+          rm -f Xray-linux-32.zip
+          mv xray Xray-linux-32.zip
+          rm -f geoip.dat geosite.dat
+          wget https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
+          wget https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat
+          cd ..
+          cd ..
+      - name: package
+        run: tar -zcvf x-ui-linux-i386.tar.gz x-ui
+      - name: upload
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: x-ui-linux-i386.tar.gz
+          asset_name: x-ui-linux-i386.tar.gz
+          asset_content_type: application/gzip
+          
+          
+          
+          
+          
+          
   linuxs390xbuild:
     name: build x-ui s390x version
     needs: release
