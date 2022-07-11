@@ -127,7 +127,7 @@ jobs:
       - name: build linux i386 version
         run: |
           sudo apt-get update
-          sudo apt install gcc-aarch64-linux-gnu
+          sudo apt install gcc-i686-linux-gnu
           CGO_ENABLED=1 GOOS=linux GOARCH=i386 CC=gcc-i686-linux-gnu go build -o xui-release -v main.go
           mkdir x-ui
           cp xui-release x-ui/xui-release
